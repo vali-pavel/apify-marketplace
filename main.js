@@ -130,7 +130,7 @@ Apify.main(async () => {
             let offerList = [];
             const offerElList = document.getElementsByClassName('olpOffer');
             for(const offerEl of offerElList) {
-                const price = offerEl.querySelector('.olpOfferPrice').innerText;
+                const price = offerEl.querySelector('.olpOfferPrice').innerText.replace(/ /g, "");;
                 const shippingPrice = getShippingPrice(offerEl);
                 const sellerName = getSellerName(offerEl);
                 offerList.push({
