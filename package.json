@@ -4,6 +4,7 @@
   "description": "jQuery can be used with the Cheerio crawler, which uses the \"$\" object to manipulate the DOM.",
   "main": "main.js",
   "scripts": {
+    "start": "node main.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
