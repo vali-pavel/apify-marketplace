@@ -159,9 +159,14 @@ Apify.main(async () => {
         ignoreDefaultArgs: ["--enable-automation"],
     };
 
+    const proxyConfiguration = await Apify.createProxyConfiguration({
+      groups: ['BUYPROXIES94952']
+    });
+
     const crawler = new Apify.PuppeteerCrawler({
         requestQueue,
         launchPuppeteerOptions,
+        proxyConfiguration,
         handlePageFunction: async ({ request, page }) => {
             const { userData } = request;
             if(userData.fetchProducts) {
