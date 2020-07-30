@@ -8,7 +8,7 @@ const {
 const { validateInput } = require('./validateInput');
 
 const BASE_URL = 'https://www.amazon.com';
-const TASK_ID = 'A0qQieongswzP48qa';
+const TASK_ID = '39DdtqVBrBm7u5rDN';
 const INTERVAL = 5000;
 
 const waitForRunToFinish = async ({ id, actId }) => {
