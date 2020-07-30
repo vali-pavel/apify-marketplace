@@ -1,20 +1,13 @@
 const Apify = require('apify');
 const typeCheck = require('type-check').typeCheck;
 
+const { validateInput } = require('./validateInput');
+
 const BASE_URL = 'https://www.amazon.com';
-const INPUT_TYPE = `{
-    keyword: String,
-}`;
 
 Apify.main(async () => {
     const input = await Apify.getValue('INPUT');
-    if (!typeCheck(INPUT_TYPE, input)) {
-        console.log('Expected input:');
-        console.log(INPUT_TYPE);
-        console.log('Received input:');
-        console.dir(input);
-        throw new Error('Received invalid input');
-    }
+    validateInput(input);
 
     const { keyword } = input;
     const requestQueue = await Apify.openRequestQueue();
