@@ -15,8 +15,6 @@ const getProductAsins = async (page) => {
         return productAsinList;
     });
 
-    productAsinList.splice(5);
-
     return productAsinList;
 }
 
