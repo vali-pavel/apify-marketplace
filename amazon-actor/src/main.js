@@ -8,8 +8,12 @@ const {
     fetchProductOffers,
     getProductOffers,
     setProductOffers,
+    handleActorMigration,
 } = require('./utils');
-const { BASE_URL } = require('./constants');
+const {
+    BASE_URL,
+    LOG_OFFERS_INTERVAL,
+} = require('./constants');
 const { validateInput } = require('./validateInput');
 
 
@@ -36,6 +40,20 @@ Apify.main(async () => {
       groups: ['BUYPROXIES94952']
     });
 
+    let asinOffers = await Apify.getValue('asinOffers') || {};
+
+    setInterval(async () => {
+        console.log(asinOffers);
+        await Apify.setValue(
+            'asinOffers',
+            asinOffers,
+        );
+    }, LOG_OFFERS_INTERVAL);
+
+    Apify.events.on('migrating', async () => {
+        await handleActorMigration(asinOffers);
+    });
+
     const crawler = new Apify.PuppeteerCrawler({
         requestQueue,
         launchPuppeteerOptions,
@@ -50,7 +68,7 @@ Apify.main(async () => {
                 await fetchProductOffers(request, productDetailList, requestQueue, input);
             } else if(userData.parseProductOffers) {
                 const productOfferList = await getProductOffers(page);
-                await setProductOffers(request, productOfferList);
+                await setProductOffers(request, productOfferList, asinOffers);
             }
         },
     });

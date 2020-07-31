@@ -15,6 +15,8 @@ const getProductAsins = async (page) => {
         return productAsinList;
     });
 
+    productAsinList.splice(5);
+
     return productAsinList;
 }
 
@@ -68,6 +70,7 @@ const fetchProductOffers = async (request, productDetails, requestQueue, input) 
     await requestQueue.addRequest({
         url: `${BASE_URL}/gp/offer-listing/${asin}`,
         userData: {
+            asin: asin,
             parseProductOffers: true,
             productDetails: {
                 url,
@@ -122,10 +125,11 @@ const getProductOffers = async (page) => {
     return offerList;
 }
 
-const setProductOffers = async (request, productOffers) => {
+const setProductOffers = async (request, productOffers, asinOffers) => {
     const {
         userData: {
             productDetails,
+            asin,
         }
     } = request;
 
@@ -134,7 +138,26 @@ const setProductOffers = async (request, productOffers) => {
             ...productDetails,
             ...productOffer,
         });
+
+        updateProductOffers(asinOffers, asin);
     }
+}
+
+const updateProductOffers = (asinOffers, asin) => {
+    if(asinOffers.hasOwnProperty(asin)) {
+        asinOffers[asin]++;
+    } else {
+        asinOffers[asin] = 1;
+    }
+
+    return asinOffers;
+}
+
+const handleActorMigration = async (asinOffers) => {
+    await Apify.setValue(
+        'asinOffers',
+        asinOffers,
+    );
 }
 
 module.exports = {
@@ -144,4 +167,5 @@ module.exports = {
     fetchProductOffers,
     getProductOffers,
     setProductOffers,
+    handleActorMigration,
 }
