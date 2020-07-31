@@ -13,6 +13,7 @@ const {
 const {
     BASE_URL,
     LOG_OFFERS_INTERVAL,
+    SESSION_MAX_USAGE_COUNT,
 } = require('./constants');
 const { validateInput } = require('./validateInput');
 
@@ -58,7 +59,18 @@ Apify.main(async () => {
         requestQueue,
         launchPuppeteerOptions,
         proxyConfiguration,
-        handlePageFunction: async ({ request, page }) => {
+        maxConcurrency: 1,
+        sessionPoolOptions: {
+            sessionOptions: {
+                maxUsageCount: SESSION_MAX_USAGE_COUNT,
+            }
+        },
+        useSessionPool: true,
+        handlePageFunction: async ({ request, page, session }) => {
+            const sessionMaxUsageReached = session.isMaxUsageCountReached();
+            if(sessionMaxUsageReached) session.retire();
+            session.retireOnBlockedStatusCodes(429, [401, 403, 503])
+
             const { userData } = request;
             if(userData.fetchProducts) {
                 const productAsinList = await getProductAsins(page);
