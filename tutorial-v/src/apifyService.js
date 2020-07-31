@@ -2,12 +2,12 @@ const ApifyClient = require('apify-client');
 const Apify = require('apify');
 const request = require('request');
 
+const { APIFY_BASE_URL } = require('./constants');
+
 const {
     userId,
     token
 } = require('./config');
-
-const APIFY_BASE_URL = 'https://api.apify.com/v2';
 
 const initializeApifyClient = () => {
     return new ApifyClient({

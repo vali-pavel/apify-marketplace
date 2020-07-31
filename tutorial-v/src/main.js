@@ -2,32 +2,11 @@ const Apify = require('apify');
 
 const {
     runTask,
-    getRun,
     getDatasetItems,
 } = require('./apifyService');
+const { waitForRunToFinish } = require('./utils');
 const { validateInput } = require('./validateInput');
-
-const BASE_URL = 'https://www.amazon.com';
-const TASK_ID = '39DdtqVBrBm7u5rDN';
-const INTERVAL = 5000;
-
-const waitForRunToFinish = async ({ id, actId }) => {
-    let taskRunning = true;
-    while(taskRunning) {
-        const runMetaData = {
-            id,
-            actId,
-        };
-        const { status } = await getRun(runMetaData);
-
-        if(status === 'SUCCEEDED') {
-            taskRunning = false;
-        } else if(status === 'FAILED' || status === 'ABORTED') {
-            throw new Error('Task failed to run successfully');
-        }
-        await Apify.utils.sleep(INTERVAL);
-    }
-}
+const { TASK_ID } = require('./constants');
 
 Apify.main(async () => {
     const input = await Apify.getValue('INPUT');
