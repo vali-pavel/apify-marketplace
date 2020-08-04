@@ -1,4 +1,3 @@
-const ApifyClient = require('apify-client');
 const Apify = require('apify');
 const request = require('request');
 
@@ -9,21 +8,13 @@ const {
     token
 } = require('./config');
 
-const initializeApifyClient = () => {
-    return new ApifyClient({
-        userId,
-        token,
-    });
-}
-
 const runTask = async ({
     memory,
     useClient,
     taskId,
 }) => {
     if(useClient) {
-        const apifyClient = initializeApifyClient();
-        return await apifyClient.tasks.runTask({
+        return await Apify.client.tasks.runTask({
             taskId,
             token,
             memory,
@@ -56,8 +47,7 @@ const getRun = async ({
     id,
     actId,
 }) => {
-    const apifyClient = initializeApifyClient();
-    return await apifyClient.acts.getRun({
+    return await Apify.client.acts.getRun({
         actId,
         token,
         runId: id,
@@ -69,8 +59,7 @@ const getDatasetItems = async ({
     maxItems,
     fields,
 }) => {
-    const apifyClient = initializeApifyClient();
-    const { items } = await apifyClient.datasets.getItems({
+    const { items } = await Apify.client.datasets.getItems({
         datasetId,
         fields,
         format: 'csv',
