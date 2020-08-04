@@ -1,6 +1,7 @@
 const Apify = require('apify');
 
 const { BASE_URL } = require('./constants');
+const { UserDataLabels } = require('./enums');
 
 const getProductAsins = async (page) => {
     const productAsinList = await page.evaluate(async () => {
@@ -23,7 +24,7 @@ const fetchProductDetails = async (asinList, requestQueue) => {
         await requestQueue.addRequest({
             url: `${BASE_URL}/dp/${asin}`,
             userData: {
-                parseProductDetail: true,
+                label: UserDataLabels.PRODUCT_DETAIL,
                 asin: asin,
             }
         })
@@ -69,7 +70,7 @@ const fetchProductOffers = async (request, productDetails, requestQueue, input) 
         url: `${BASE_URL}/gp/offer-listing/${asin}`,
         userData: {
             asin: asin,
-            parseProductOffers: true,
+            label: UserDataLabels.OFFER,
             productDetails: {
                 url,
                 keyword: input.keyword,

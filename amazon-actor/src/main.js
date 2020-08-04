@@ -16,7 +16,7 @@ const {
     SESSION_MAX_USAGE_COUNT,
 } = require('./constants');
 const { validateInput } = require('./validateInput');
-
+const { UserDataLabels } = require('./enums');
 
 Apify.main(async () => {
     const input = await Apify.getValue('INPUT');
@@ -27,7 +27,7 @@ Apify.main(async () => {
     await requestQueue.addRequest({
         url: `${BASE_URL}/s/ref=nb_sb_noss?url=search-alias%3Daps&field-keywords=${keyword}`,
         userData: {
-            fetchProducts: true,
+            label: UserDataLabels.PRODUCT,
         }
     });
 
@@ -72,13 +72,13 @@ Apify.main(async () => {
             session.retireOnBlockedStatusCodes(429, [401, 403, 503])
 
             const { userData } = request;
-            if(userData.fetchProducts) {
+            if(userData.label === UserDataLabels.PRODUCT) {
                 const productAsinList = await getProductAsins(page);
                 await fetchProductDetails(productAsinList, requestQueue);
-            } else if(userData.parseProductDetail) {
+            } else if(userData.label === UserDataLabels.PRODUCT_DETAIL) {
                 const productDetailList = await getProductDetails(page);
                 await fetchProductOffers(request, productDetailList, requestQueue, input);
-            } else if(userData.parseProductOffers) {
+            } else if(userData.label === UserDataLabels.OFFER) {
                 const productOfferList = await getProductOffers(page);
                 await setProductOffers(request, productOfferList, asinOffers);
             }
