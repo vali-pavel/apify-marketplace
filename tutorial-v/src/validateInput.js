@@ -1,33 +1,75 @@
-const typeCheck = require('type-check').typeCheck;
+const MIN_MEMORY = 128;
 
 module.exports.validateInput = (input) => {
-    const INPUT_TYPE = `{
-        memory: Number,
-        useClient: Boolean,
-        fields: [String],
-        maxItems: Number,
-    }`;
+    const {
+        memory,
+        useClient,
+        fields,
+        maxItems
+    } = input;
 
-    const CUSTOM_TYPES = {
-        customTypes: {
-            Even: {
-                typeOf: 'Number',
-                validate: function(number) {
-                    return (number != 1) && ((number & (number - 1)) == 0);
-                }
-            }
+    const validationErrors = [];
+
+    if(!memory) {
+        const errMsg = errFieldMissing('memory');
+        validationErrors.push(errMsg);
+    } else {
+        if(typeof memory !== 'number') {
+            const fieldType = typeof memory;
+            const errMsg = errInvalidFieldValue('memory', 'number', fieldType);
+            validationErrors.push(errMsg);
+        }
+        if(memory < MIN_MEMORY) {
+            const errMsg = `Memory has to be greater or equal to ${MIN_MEMORY}`;
+            validationErrors.push(errMsg);
+        } else if(!powerOfTwo(memory)) {
+            const errMsg = `Memory has to be a power of 2`;
+            validationErrors.push(errMsg);
         }
     }
 
-    if (!typeCheck(INPUT_TYPE, input)) {
-        console.log('Expected input:');
-        console.log(INPUT_TYPE);
-        console.log('Received input:');
-        console.dir(input);
-        throw new Error('Received invalid input');
+    if(!useClient) {
+        const errMsg = errFieldMissing('useClient');
+        validationErrors.push(errMsg);
+    } else if(typeof useClient !== 'boolean') {
+        const fieldType = typeof useClient;
+        const errMsg = errInvalidFieldValue('useClient', 'boolean', fieldType);
+        validationErrors.push(errMsg);
     }
 
-    if(!typeCheck('Even', input.memory, CUSTOM_TYPES)) {
-        throw new Error('Memory has to be a power of 2');
+    if(!fields) {
+        errFieldMissing('fields');
+    } else if(!Array.isArray(fields)) {
+        const fieldType = typeof fields;
+        const errMsg = errInvalidFieldValue('fields', 'array', fieldType);
+        validationErrors.push(errMsg);
     }
+
+    if(!maxItems) {
+        const errMsg = errFieldMissing('maxItems');
+        validationErrors.push(errMsg);
+    } else if(typeof maxItems !== 'number') {
+        const fieldType = typeof maxItems;
+        const errMsg = errInvalidFieldValue('maxItems', 'number', fieldType);
+        validationErrors.push(errMsg);
+    }
+
+    if(validationErrors.length > 0) {
+        const errorMessage = validationErrors.join('\n\n');
+        throw new Error(errorMessage);
+    }
+}
+
+const errFieldMissing = (field) => {
+    return `The ${field} field is missing from input.`;
+}
+
+const errInvalidFieldValue = (field, expected, received) => {
+    return `Invalid value added to the ${field} field.
+        Expected: ${expected}
+        Received: ${received}`;
+}
+
+const powerOfTwo = (number) => {
+    return ((number & (number - 1)) === 0);
 }
